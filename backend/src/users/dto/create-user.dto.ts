@@ -7,9 +7,10 @@ import {
   ValidateNested,
   IsEnum,
   IsPhoneNumber,
+  IsStrongPassword,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { USER_ROLE } from 'src/utils/enum';
+import { USER_ROLE } from 'src/common/constants/enum';
 import { AddressDto } from './user.dto';
 
 export class CreateUserDto {
@@ -20,6 +21,9 @@ export class CreateUserDto {
   @ApiProperty({ type: String })
   @IsEmail()
   readonly email: string;
+  @ApiProperty({ type: String })
+  @IsStrongPassword()
+  password: string;
 
   @ApiProperty({ type: [AddressDto] })
   @IsArray()

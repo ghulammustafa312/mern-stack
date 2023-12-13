@@ -7,7 +7,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { AddressDto } from './user.dto';
-import { USER_ROLE } from 'src/utils/enum';
+import { USER_ROLE } from 'src/common/constants/enum';
 import { Type } from 'class-transformer';
 
 export class UpdateUserDto {

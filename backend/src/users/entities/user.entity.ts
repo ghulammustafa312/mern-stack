@@ -1,7 +1,7 @@
 // users/user.entity.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { USER_ROLE } from 'src/utils/enum';
+import { USER_ROLE } from 'src/common/constants/enum';
 
 export type UserDocument = User & Document;
 
@@ -15,6 +15,8 @@ export class User {
 
   @Prop({ required: true, unique: true })
   email: string;
+  @Prop({ required: true, type: String })
+  password: string;
 
   @Prop({ type: Array<Address>, required: true })
   addresses: Address[];
