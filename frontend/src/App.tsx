@@ -1,5 +1,12 @@
+import { BrowserRouter as Router } from "react-router-dom";
+import AllRoutes from "./routes";
+
 function App() {
-  return <div className="bg-red-950 text-white">hello naveed</div>;
+  return (
+    <Router>
+      <AllRoutes />
+    </Router>
+  );
 }
 
 export default App;
