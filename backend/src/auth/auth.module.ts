@@ -4,7 +4,6 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { LocalStrategy } from 'src/common/strategy/local.strategy';
 import { JwtStrategy } from 'src/common/strategy/jwt.strategy';
 
 @Module({

@@ -21,7 +21,7 @@ export class UsersService {
   async findAll(dto: ListUserDto): Promise<User[]> {
     const { search, page, limit } = dto;
     const offset = (page - 1) * limit;
-    let filterQuery = {};
+    const filterQuery = {};
     if (search) filterQuery['name'] = { $regex: search, $options: 'i' };
     return this.userModel
       .find(filterQuery)
