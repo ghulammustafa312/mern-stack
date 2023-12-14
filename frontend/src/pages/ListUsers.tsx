@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid, GridOverlay } from "@mui/x-data-grid";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { FixedSizeList } from "react-window";
 import {
   Button,
   Dialog,
@@ -26,9 +27,7 @@ const UserTable = () => {
   const navigate = useNavigate();
 
   const loadMoreData = async () => {
-    // Simulate fetching more data from the backend
     const newUsers = await fetchData(page + 1);
-
     if (newUsers.length === 0) {
       setHasMore(false);
     } else {
@@ -43,7 +42,7 @@ const UserTable = () => {
       {
         headers: {
           Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkhhbGllLk1hY2Vqa292aWM3NUBob3RtYWlsLmNvbSIsInN1YiI6IjY1N2FhNjkxMmVkYjUzNWJiMzJlZDg4ZCIsImlhdCI6MTcwMjU0NDgzMCwiZXhwIjoxNzAyNTQ4NDMwfQ.Rj9HTqHl9uNm-Pl2cO1LQn3rCpTnVLDIP7dOPVcbwxY",
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkhhbGllLk1hY2Vqa292aWM3NUBob3RtYWlsLmNvbSIsInN1YiI6IjY1N2FhNjkxMmVkYjUzNWJiMzJlZDg4ZCIsImlhdCI6MTcwMjU0ODcwMSwiZXhwIjoxNzAyNTUyMzAxfQ.VmIQlsT2xTyvhNv2s3UGwh30ZOeXKAN5ZL19T3w6USU",
         },
       }
     );
@@ -56,7 +55,7 @@ const UserTable = () => {
         method: "DELETE",
         headers: {
           Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkhhbGllLk1hY2Vqa292aWM3NUBob3RtYWlsLmNvbSIsInN1YiI6IjY1N2FhNjkxMmVkYjUzNWJiMzJlZDg4ZCIsImlhdCI6MTcwMjU0NDgzMCwiZXhwIjoxNzAyNTQ4NDMwfQ.Rj9HTqHl9uNm-Pl2cO1LQn3rCpTnVLDIP7dOPVcbwxY",
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkhhbGllLk1hY2Vqa292aWM3NUBob3RtYWlsLmNvbSIsInN1YiI6IjY1N2FhNjkxMmVkYjUzNWJiMzJlZDg4ZCIsImlhdCI6MTcwMjU0ODcwMSwiZXhwIjoxNzAyNTUyMzAxfQ.VmIQlsT2xTyvhNv2s3UGwh30ZOeXKAN5ZL19T3w6USU",
         },
       });
       fetchData(page);
@@ -106,11 +105,12 @@ const UserTable = () => {
   ];
   const handleView = (user) => {
     handleMenuClose();
+    navigate(`/list/${selectedUser?.id}`);
   };
 
   const handleEdit = (user) => {
-    console.log("Edit user:", user);
     handleMenuClose();
+    navigate(`/edit/${selectedUser?.id}`);
   };
 
   const handleDelete = (user) => {
@@ -149,11 +149,11 @@ const UserTable = () => {
 
   // Render loading overlay while fetching more data
   const LoadingOverlay = () => (
-    <></>
+    <div>Loading ...</div>
     // <GridOverlay
     //   style={{
     //     display: "flex",
-    //     justifyContent: "center",
+    //     // justifyInfiniteScrollContent: "center",
     //     alignItems: "center",
     //   }}
     // >
@@ -161,14 +161,38 @@ const UserTable = () => {
     // </GridOverlay>
   );
 
+  const Row = ({ index, style }) => (
+    <div style={style}>
+      <DataGrid
+        rows={[rows[index]]}
+        columns={columns}
+        pageSizeOptions={[1]}
+        autoHeight
+      />
+    </div>
+  );
+
   return (
-    <div className="w-full h-screen p-8">
+    <div>
+      <div className="flex justify-end p-2">
+        <Button onClick={handleDeleteCancel} color="primary">
+          Cancel
+        </Button>
+      </div>
       <InfiniteScroll
         dataLength={users.length}
         next={loadMoreData}
         hasMore={hasMore}
         loader={<LoadingOverlay />}
+        height={window.screen.availHeight}
       >
+        {/* <FixedSizeList
+          height={500}
+          itemCount={users.length}
+          itemSize={8} // Adjust the item size based on your design
+        >
+          {Row}
+        </FixedSizeList> */}
         <DataGrid
           rows={rows}
           columns={columns}

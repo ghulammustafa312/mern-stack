@@ -18,7 +18,7 @@ function AllRoutes() {
         { path: ":userId", element: <UserDetail /> },
       ],
     },
-    { path: "/edit", element: <EditUser /> },
+    { path: "/edit/:userId", element: <EditUser /> },
     { path: "/create", element: <CreateUser /> },
 
     { path: "*", element: <NotFound /> },
