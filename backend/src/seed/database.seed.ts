@@ -34,7 +34,7 @@ async function seedDatabase() {
       const currentBatch = users.slice(i, i + 1000);
       batchPromises.push(UserModel.insertMany(currentBatch));
     }
-    await Promise.all(batchPromises);
+    await Promise.allSettled(batchPromises);
 
     console.log('Database seeded successfully!');
   } catch (error) {
