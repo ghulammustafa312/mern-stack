@@ -42,6 +42,7 @@ const extractErrorMessages = (
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: '*' });
   const config = new DocumentBuilder()
     .setTitle('MERN Stack Project')
     .setDescription('MERN Stack Project API description')
