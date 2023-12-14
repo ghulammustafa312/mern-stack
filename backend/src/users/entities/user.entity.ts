@@ -1,7 +1,7 @@
 // users/user.entity.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { USER_ROLE } from 'src/common/constants/enum';
+import mongoose, { Document } from 'mongoose';
+import { USER_ROLE } from '../../common/constants/enum';
 
 export type UserDocument = User & Document;
 
@@ -47,3 +47,4 @@ export class Address {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+export const UserModel = mongoose.model<UserDocument>('User', UserSchema);

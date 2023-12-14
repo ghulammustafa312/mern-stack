@@ -112,6 +112,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         return 'Internal Server Error';
       case exception?.message?.includes(' JSON '):
         return 'Invalid Request Body';
+      case exception?.message?.includes('Forbidden'):
+        return 'Role Not Allowed';
       default:
         return exception.message
           ?.replace(/group/i, 'Role')
