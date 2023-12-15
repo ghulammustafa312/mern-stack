@@ -7,7 +7,7 @@ export const usersApi = createApi({
   baseQuery: customFetchBase,
   tagTypes: ["Users"],
   endpoints: (builder) => ({
-    createUser: builder.mutation<any, FormData>({
+    createUser: builder.mutation<any, any>({
       query(post) {
         return {
           url: "/users",
@@ -19,7 +19,7 @@ export const usersApi = createApi({
       invalidatesTags: [{ type: "Users", id: "LIST" }],
       transformResponse: (result: any) => result.data,
     }),
-    updateUser: builder.mutation<any, { id: string; user: FormData }>({
+    updateUser: builder.mutation<any, { id: string; user: any }>({
       query({ id, user }) {
         return {
           url: `/users/${id}`,
@@ -79,4 +79,10 @@ export const usersApi = createApi({
   }),
 });
 
-export const { useCreateUserMutation, useDeleteUserMutation, useUpdateUserMutation, useGetAllUsersQuery, useGetUserQuery } = usersApi;
+export const {
+  useCreateUserMutation,
+  useDeleteUserMutation,
+  useUpdateUserMutation,
+  useGetAllUsersQuery,
+  useGetUserQuery,
+} = usersApi;

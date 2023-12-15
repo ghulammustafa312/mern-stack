@@ -1,22 +1,32 @@
-import React from "react";
-import { Typography, Paper, Button, TextField, MenuItem } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Link, useParams } from "react-router-dom";
-import { useGetUserQuery, useUpdateUserMutation } from "../redux/api/usersApi";
-import { FieldArray, useFormik } from "formik";
-import * as Yup from "yup";
+// UserEdit.js
 
+import React, { useEffect } from "react";
+import {
+  Typography,
+  Paper,
+  Button,
+  TextField,
+  IconButton,
+  Grid,
+  MenuItem,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Link, useParams } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useCreateUserMutation, useGetUserQuery } from "../redux/api/usersApi";
 const UserEdit = () => {
   const { userId } = useParams();
-  const { isLoading, isError, error, data: user } = useGetUserQuery(userId);
-  const [updateUser, { isLoading: updateLoading, isError: isUpdated, error: updateError }] = useUpdateUserMutation();
-  const initialValues = {
-    name: user?.name || "",
-    email: user?.email || "",
-    role: user?.role || "",
-    phoneNo: user?.phoneNo || "",
-    addresses: user?.addresses?.map((address: any) => ({ ...address })) || [],
-  };
+  const {
+    isError,
+    isLoading,
+    error,
+    data: user,
+    isSuccess,
+  } = useGetUserQuery(userId);
+  const [addUser] = useCreateUserMutation();
   const validationSchema = Yup.object({
     name: Yup.string().required("Required"),
     email: Yup.string().email("Invalid email address").required("Required"),
@@ -34,20 +44,69 @@ const UserEdit = () => {
   });
 
   const formik = useFormik({
-    initialValues,
+    initialValues: {
+      name: "",
+      email: "",
+      role: "",
+      phoneNo: "",
+      addresses: [
+        {
+          addressLine1: "",
+          addressLine2: "",
+          city: "",
+          state: "",
+          country: "",
+        },
+      ],
+    },
     validationSchema,
-    onSubmit: (values) => {
-      // Implement the logic to save edited user details
-      console.log("Edited User:", values);
+    onSubmit: async (values) => {
+      try {
+        await addUser(values);
+      } catch (error) {
+        console.error("Error updating user:", error);
+      }
     },
   });
+
+  useEffect(() => {
+    if (isSuccess && user) {
+      formik.setValues({
+        ...user,
+      });
+    }
+  }, [isSuccess]);
+  const handleAddAddress = () => {
+    formik.setValues({
+      ...formik.values,
+      addresses: [
+        ...formik.values.addresses,
+        {
+          addressLine1: "",
+          addressLine2: "",
+          city: "",
+          state: "",
+          country: "",
+        },
+      ],
+    });
+  };
+
+  const handleDeleteAddress = (index: number) => {
+    const newAddresses = [...formik.values.addresses];
+    newAddresses.splice(index, 1);
+    formik.setValues({
+      ...formik.values,
+      addresses: newAddresses,
+    });
+  };
 
   return (
     <div className="w-full h-screen p-8">
       <Paper elevation={3} className="p-8">
-        <Link to={`/list`}>
+        <Link to={`/dashboard`}>
           <Button startIcon={<ArrowBackIcon />} variant="outlined">
-            Back to User Detail
+            Back to User
           </Button>
         </Link>
         <Typography variant="h4" className="mb-4">
@@ -62,9 +121,9 @@ const UserEdit = () => {
             name="name"
             value={formik.values.name}
             onChange={formik.handleChange}
+            error={formik.touched.name && Boolean(formik.errors.name)}
+            helperText={formik.touched.name && formik.errors.name}
           />
-          {formik.touched.name && formik.errors.name && <div className="text-red-500">{formik.errors.name}</div>}
-
           <TextField
             fullWidth
             label="Email"
@@ -73,24 +132,24 @@ const UserEdit = () => {
             name="email"
             value={formik.values.email}
             onChange={formik.handleChange}
-            disabled
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            helperText={formik.touched.email && formik.errors.email}
           />
-
           <TextField
             fullWidth
             label="Role"
             variant="outlined"
             margin="normal"
             name="role"
-            select
             value={formik.values.role}
             onChange={formik.handleChange}
+            error={formik.touched.role && Boolean(formik.errors.role)}
+            helperText={formik.touched.role && formik.errors.role}
+            select
           >
-            <MenuItem value="USER">USER</MenuItem>
-            <MenuItem value="ADMIN">ADMIN</MenuItem>
+            <MenuItem value="ADMIN">Admin</MenuItem>
+            <MenuItem value="USER">User</MenuItem>
           </TextField>
-          {formik.touched.role && formik.errors.role && <div className="text-red-500">{formik.errors.role}</div>}
-
           <TextField
             fullWidth
             label="Phone No"
@@ -99,115 +158,151 @@ const UserEdit = () => {
             name="phoneNo"
             value={formik.values.phoneNo}
             onChange={formik.handleChange}
+            error={formik.touched.phoneNo && Boolean(formik.errors.phoneNo)}
+            helperText={formik.touched.phoneNo && formik.errors.phoneNo}
           />
-          {formik.touched.phoneNo && formik.errors.phoneNo && <div className="text-red-500">{formik.errors.phoneNo}</div>}
           <Typography variant="h6" className="mt-4 mb-2">
             Addresses:
           </Typography>
-          <FieldArray name="addresses">
-            {({ push, remove }) => (
-              <>
-                {formik.values.addresses.map((address: any, index: number) => (
-                  <div key={index} className="mb-2">
-                    <TextField
-                      fullWidth
-                      label="Address Line 1"
-                      variant="outlined"
-                      margin="normal"
-                      name={`addresses[${index}].addressLine1`}
-                      value={address.addressLine1}
-                      onChange={formik.handleChange}
-                    />
-                    {/* {formik?.touched?.addresses[index] && formik?.errors?.addresses[index]?.addressLine1 && (
-                      <div className="text-red-500">{formik.errors.addresses[index].addressLine1}</div>
-                    )} */}
-
-                    <TextField
-                      fullWidth
-                      label="Address Line 2"
-                      variant="outlined"
-                      margin="normal"
-                      name={`addresses[${index}].addressLine2`}
-                      value={address.addressLine2}
-                      onChange={formik.handleChange}
-                    />
-                    {/* {formik?.touched?.addresses[index] && formik?.errors?.addresses[index]?.addressLine2 && (
-                      <div className="text-red-500">{formik.errors.addresses[index].addressLine2}</div>
-                    )} */}
-
-                    <TextField
-                      fullWidth
-                      label="City"
-                      variant="outlined"
-                      margin="normal"
-                      name={`addresses[${index}].city`}
-                      value={address.city}
-                      onChange={formik.handleChange}
-                    />
-                    {/* {formik?.touched?.addresses[index] && formik?.errors?.addresses[index]?.city && (
-                      <div className="text-red-500">{formik.errors.addresses[index].city}</div>
-                    )} */}
-
-                    <TextField
-                      fullWidth
-                      label="State"
-                      variant="outlined"
-                      margin="normal"
-                      name={`addresses[${index}].state`}
-                      value={address.state}
-                      onChange={formik.handleChange}
-                    />
-                    {/* {formik?.touched?.addresses[index] && formik?.errors?.addresses[index]?.state && (
-                      <div className="text-red-500">{formik.errors.addresses[index].state}</div>
-                    )} */}
-
-                    <TextField
-                      fullWidth
-                      label="Country"
-                      variant="outlined"
-                      margin="normal"
-                      name={`addresses[${index}].country`}
-                      value={address.country}
-                      onChange={formik.handleChange}
-                    />
-                    {/* {formik?.touched?.addresses[index] && formik?.errors?.addresses[index]?.country && (
-                      <div className="text-red-500">{formik.errors.addresses[index].country}</div>
-                    )} */}
-
-                    {/* Remove address button */}
-                    {/* <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => {
-                        formik.values.addresses.length > 1 && remove(index);
-                      }}
-                    >
-                      Remove Address
-                    </Button> */}
-                  </div>
-                ))}
-                {/* Add address button */}
-                {/* <Button
+          {formik.values.addresses.map((address: any, index: number) => (
+            <Grid container spacing={2} key={index} className="mb-2">
+              <Grid item xs={5}>
+                <TextField
+                  fullWidth
+                  label="Address Line 1"
                   variant="outlined"
-                  color="primary"
-                  onClick={() =>
-                    push({
-                      addressLine1: "",
-                      addressLine2: "",
-                      city: "",
-                      state: "",
-                      country: "",
-                    })
+                  margin="normal"
+                  name={`addresses[${index}].addressLine1`}
+                  value={address.addressLine1}
+                  onChange={formik.handleChange}
+                  error={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.addressLine1 &&
+                    Boolean(formik.errors.addresses?.[index]?.addressLine1)
                   }
-                >
-                  Add Address
-                </Button> */}
-              </>
-            )}
-          </FieldArray>
-          <Button type="submit" variant="contained" color="primary" className="mt-4">
-            Save Changes
+                  helperText={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.addressLine1 &&
+                    formik.errors.addresses?.[index]?.addressLine1
+                  }
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <TextField
+                  fullWidth
+                  label="Address Line 2"
+                  variant="outlined"
+                  margin="normal"
+                  name={`addresses[${index}].addressLine2`}
+                  value={address.addressLine2}
+                  onChange={formik.handleChange}
+                  error={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.addressLine2 &&
+                    Boolean(formik.errors.addresses?.[index]?.addressLine2)
+                  }
+                  helperText={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.addressLine2 &&
+                    formik.errors.addresses?.[index]?.addressLine2
+                  }
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <TextField
+                  fullWidth
+                  label="City"
+                  variant="outlined"
+                  margin="normal"
+                  name={`addresses[${index}].city`}
+                  value={address.city}
+                  onChange={formik.handleChange}
+                  error={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.city &&
+                    Boolean(formik.errors.addresses?.[index]?.city)
+                  }
+                  helperText={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.city &&
+                    formik.errors.addresses?.[index]?.city
+                  }
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <TextField
+                  fullWidth
+                  label="State"
+                  variant="outlined"
+                  margin="normal"
+                  name={`addresses[${index}].state`}
+                  value={address.state}
+                  onChange={formik.handleChange}
+                  error={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.state &&
+                    Boolean(formik.errors.addresses?.[index]?.state)
+                  }
+                  helperText={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.state &&
+                    formik.errors.addresses?.[index]?.state
+                  }
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <TextField
+                  fullWidth
+                  label="Country"
+                  variant="outlined"
+                  margin="normal"
+                  name={`addresses[${index}].country`}
+                  value={address.country}
+                  onChange={formik.handleChange}
+                  error={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.country &&
+                    Boolean(formik.errors.addresses?.[index]?.country)
+                  }
+                  helperText={
+                    formik?.touched?.addresses &&
+                    formik?.touched?.addresses[index]?.country &&
+                    formik.errors.addresses?.[index]?.country
+                  }
+                />
+              </Grid>
+
+              {formik.values.addresses.length > 1 && (
+                <Grid item xs={2} className="flex items-center">
+                  <IconButton
+                    color="secondary"
+                    onClick={() => handleDeleteAddress(index)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Grid>
+              )}
+            </Grid>
+          ))}
+          <Button
+            color="primary"
+            onClick={handleAddAddress}
+            className="mb-2"
+            variant="outlined"
+            startIcon={<AddIcon />}
+          >
+            Add
           </Button>
+          <div className="flex justify-end p-2">
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              className="mt-4"
+            >
+              Save Changes
+            </Button>
+          </div>
         </form>
       </Paper>
     </div>

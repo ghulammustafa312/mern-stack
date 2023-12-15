@@ -1,4 +1,9 @@
-import { BaseQueryFn, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import {
+  BaseQueryFn,
+  FetchArgs,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+} from "@reduxjs/toolkit/query";
 import { Mutex } from "async-mutex";
 import { logout } from "../features/user.slice";
 
@@ -16,25 +21,29 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-const customFetchBase: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
+const customFetchBase: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
   // wait until the mutex is available without locking it
-  await mutex.waitForUnlock();
+  // await mutex.waitForUnlock();
   let result = await baseQuery(args, api, extraOptions);
   if (result.error?.status === 401) {
-    if (!mutex.isLocked()) {
-      const release = await mutex.acquire();
-      try {
-        api.dispatch(logout());
-        // window.location.href = "/";
-      } catch (e) {
-        console.log(e);
-      } finally {
-        release();
-      }
-    } else {
-      await mutex.waitForUnlock();
-      result = await baseQuery(args, api, extraOptions);
+    // if (!mutex.isLocked()) {
+    // const release = await mutex.acquire();
+    try {
+      api.dispatch(logout());
+      window.location.href = "/";
+    } catch (e) {
+      console.log(e);
+    } finally {
+      // release();
     }
+    // } else {
+    //   await mutex.waitForUnlock();
+    //   result = await baseQuery(args, api, extraOptions);
+    // }
   }
 
   return result;

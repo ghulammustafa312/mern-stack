@@ -11,7 +11,7 @@ const getUserFromLocalStorage = (): IUser | null => {
 };
 const initialState: IUserState = {
   user: getUserFromLocalStorage(),
-  access_token: localStorage.getItem("token") || "",
+  access_token: localStorage.getItem("token") ?? "",
 };
 
 export const userSlice = createSlice({
@@ -19,7 +19,10 @@ export const userSlice = createSlice({
   name: "userSlice",
   reducers: {
     logout: () => initialState,
-    setUser: (state, action: PayloadAction<{ user: IUser; access_token: string }>) => {
+    setUser: (
+      state,
+      action: PayloadAction<{ user: IUser; access_token: string }>
+    ) => {
       state.user = action.payload.user;
       state.access_token = action.payload.access_token;
       localStorage.setItem("user", JSON.stringify(action.payload.user));

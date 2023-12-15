@@ -16,7 +16,7 @@ const UserDetail = () => {
   return (
     <div className="w-full h-screen p-8">
       <Paper elevation={3} className="p-8">
-        <Link to="/list">
+        <Link to="/dashboard">
           <Button startIcon={<ArrowBackIcon />} variant="outlined">
             Back to Users
           </Button>
@@ -37,7 +37,8 @@ const UserDetail = () => {
           {data?.addresses?.length &&
             data?.addresses.map((address: any, index: number) => (
               <li key={index}>
-                {address.addressLine1}, {address.addressLine2}, {address.city}, {address.state}, {address.country}
+                {address.addressLine1}, {address.addressLine2}, {address.city},{" "}
+                {address.state}, {address.country}
               </li>
             ))}
         </ul>
