@@ -28,12 +28,14 @@ export const authApi = createApi({
           credentials: "include",
         };
       },
-      transformResponse: (result: { data: { access_token: string; user: any } }) => result.data,
+      transformResponse: (result: {
+        data: { access_token: string; user: any };
+      }) => result.data,
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           dispatch(setUser(data));
-          window.location.href = "/list";
+          window.location.href = "/dashboard";
         } catch (error) {}
       },
       //   async onQueryStarted(args, { dispatch, queryFulfilled }) {
