@@ -1,15 +1,7 @@
 // UserEdit.js
 
 import React from "react";
-import {
-  Typography,
-  Paper,
-  Button,
-  TextField,
-  IconButton,
-  Grid,
-  MenuItem,
-} from "@mui/material";
+import { Typography, Paper, Button, TextField, IconButton, Grid, MenuItem } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -17,11 +9,13 @@ import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useCreateUserMutation } from "../redux/api/usersApi";
+import toast from "react-hot-toast";
 const UserEdit = () => {
   const [addUser] = useCreateUserMutation();
   const validationSchema = Yup.object({
     name: Yup.string().required("Required"),
     email: Yup.string().email("Invalid email address").required("Required"),
+    password: Yup.string().min(8, "Password must be at least 8 characters").required("Required"),
     role: Yup.string().required("Required"),
     phoneNo: Yup.string().required("Required"),
     addresses: Yup.array().of(
@@ -39,6 +33,7 @@ const UserEdit = () => {
     initialValues: {
       name: "",
       email: "",
+      password: "",
       role: "",
       phoneNo: "",
       addresses: [
@@ -53,11 +48,11 @@ const UserEdit = () => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      try {
-        await addUser(values);
-      } catch (error) {
-        console.error("Error updating user:", error);
-      }
+      addUser(values)
+        .unwrap()
+        .then(() => toast.success("User Added successfully"))
+        .catch((err) => toast.error(err?.data?.message))
+        .finally(() => formik.resetForm());
     },
   });
 
@@ -121,6 +116,18 @@ const UserEdit = () => {
             helperText={formik.touched.email && formik.errors.email}
           />
           <TextField
+            type="password"
+            label="Password"
+            variant="outlined"
+            fullWidth
+            id="password"
+            name="password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            error={formik.touched.password && Boolean(formik.errors.password)}
+            helperText={formik.touched.password && formik.errors.password}
+          />
+          <TextField
             fullWidth
             label="Role"
             variant="outlined"
@@ -166,9 +173,7 @@ const UserEdit = () => {
                     Boolean(formik.errors.addresses?.[index]?.addressLine1)
                   }
                   helperText={
-                    formik?.touched?.addresses &&
-                    formik?.touched?.addresses[index]?.addressLine1 &&
-                    formik.errors.addresses?.[index]?.addressLine1
+                    formik?.touched?.addresses && formik?.touched?.addresses[index]?.addressLine1 && formik.errors.addresses?.[index]?.addressLine1
                   }
                 />
               </Grid>
@@ -187,9 +192,7 @@ const UserEdit = () => {
                     Boolean(formik.errors.addresses?.[index]?.addressLine2)
                   }
                   helperText={
-                    formik?.touched?.addresses &&
-                    formik?.touched?.addresses[index]?.addressLine2 &&
-                    formik.errors.addresses?.[index]?.addressLine2
+                    formik?.touched?.addresses && formik?.touched?.addresses[index]?.addressLine2 && formik.errors.addresses?.[index]?.addressLine2
                   }
                 />
               </Grid>
@@ -202,16 +205,8 @@ const UserEdit = () => {
                   name={`addresses[${index}].city`}
                   value={address.city}
                   onChange={formik.handleChange}
-                  error={
-                    formik?.touched?.addresses &&
-                    formik?.touched?.addresses[index]?.city &&
-                    Boolean(formik.errors.addresses?.[index]?.city)
-                  }
-                  helperText={
-                    formik?.touched?.addresses &&
-                    formik?.touched?.addresses[index]?.city &&
-                    formik.errors.addresses?.[index]?.city
-                  }
+                  error={formik?.touched?.addresses && formik?.touched?.addresses[index]?.city && Boolean(formik.errors.addresses?.[index]?.city)}
+                  helperText={formik?.touched?.addresses && formik?.touched?.addresses[index]?.city && formik.errors.addresses?.[index]?.city}
                 />
               </Grid>
               <Grid item xs={5}>
@@ -223,16 +218,8 @@ const UserEdit = () => {
                   name={`addresses[${index}].state`}
                   value={address.state}
                   onChange={formik.handleChange}
-                  error={
-                    formik?.touched?.addresses &&
-                    formik?.touched?.addresses[index]?.state &&
-                    Boolean(formik.errors.addresses?.[index]?.state)
-                  }
-                  helperText={
-                    formik?.touched?.addresses &&
-                    formik?.touched?.addresses[index]?.state &&
-                    formik.errors.addresses?.[index]?.state
-                  }
+                  error={formik?.touched?.addresses && formik?.touched?.addresses[index]?.state && Boolean(formik.errors.addresses?.[index]?.state)}
+                  helperText={formik?.touched?.addresses && formik?.touched?.addresses[index]?.state && formik.errors.addresses?.[index]?.state}
                 />
               </Grid>
               <Grid item xs={5}>
@@ -245,46 +232,26 @@ const UserEdit = () => {
                   value={address.country}
                   onChange={formik.handleChange}
                   error={
-                    formik?.touched?.addresses &&
-                    formik?.touched?.addresses[index]?.country &&
-                    Boolean(formik.errors.addresses?.[index]?.country)
+                    formik?.touched?.addresses && formik?.touched?.addresses[index]?.country && Boolean(formik.errors.addresses?.[index]?.country)
                   }
-                  helperText={
-                    formik?.touched?.addresses &&
-                    formik?.touched?.addresses[index]?.country &&
-                    formik.errors.addresses?.[index]?.country
-                  }
+                  helperText={formik?.touched?.addresses && formik?.touched?.addresses[index]?.country && formik.errors.addresses?.[index]?.country}
                 />
               </Grid>
 
               {formik.values.addresses.length > 1 && (
                 <Grid item xs={2} className="flex items-center">
-                  <IconButton
-                    color="secondary"
-                    onClick={() => handleDeleteAddress(index)}
-                  >
+                  <IconButton color="secondary" onClick={() => handleDeleteAddress(index)}>
                     <DeleteIcon />
                   </IconButton>
                 </Grid>
               )}
             </Grid>
           ))}
-          <Button
-            color="primary"
-            onClick={handleAddAddress}
-            className="mb-2"
-            variant="outlined"
-            startIcon={<AddIcon />}
-          >
+          <Button color="primary" onClick={handleAddAddress} className="mb-2" variant="outlined" startIcon={<AddIcon />}>
             Add
           </Button>
           <div className="flex justify-end p-2">
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              className="mt-4"
-            >
+            <Button type="submit" variant="contained" color="primary" className="mt-4">
               Save Changes
             </Button>
           </div>

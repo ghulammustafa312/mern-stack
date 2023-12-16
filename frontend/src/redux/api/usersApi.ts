@@ -19,7 +19,7 @@ export const usersApi = createApi({
       invalidatesTags: [{ type: "Users", id: "LIST" }],
       transformResponse: (result: any) => result.data,
     }),
-    updateUser: builder.mutation<any, { id: string; user: any }>({
+    updateUser: builder.mutation<any, { id: any; user: any }>({
       query({ id, user }) {
         return {
           url: `/users/${id}`,
@@ -79,10 +79,4 @@ export const usersApi = createApi({
   }),
 });
 
-export const {
-  useCreateUserMutation,
-  useDeleteUserMutation,
-  useUpdateUserMutation,
-  useGetAllUsersQuery,
-  useGetUserQuery,
-} = usersApi;
+export const { useCreateUserMutation, useDeleteUserMutation, useUpdateUserMutation, useGetAllUsersQuery, useGetUserQuery } = usersApi;

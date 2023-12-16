@@ -21,27 +21,30 @@ const UserDetail = () => {
             Back to Users
           </Button>
         </Link>
-        <Typography variant="h4" className="mb-4">
-          User Detail
-        </Typography>
-        <div className="mb-4">
-          <Typography variant="h6">Name: {data?.name}</Typography>
-          <Typography variant="body1">Email: {data?.email}</Typography>
-          <Typography variant="body1">Role: {data?.role}</Typography>
-          <Typography variant="body1">Phone No: {data?.phoneNo}</Typography>
+        <div className="flex flex-col items-center max-w-screen-md mx-auto">
+          <Typography variant="h3" className="mb-4">
+            User Detail
+          </Typography>
+          <div className="mb-4">
+            <Typography variant="h5">Name: {data?.name}</Typography>
+            <Typography variant="h5">Email: {data?.email}</Typography>
+            <Typography className="capitalize" variant="h5">
+              Role: <b>{data?.role?.toLowerCase()}</b>
+            </Typography>
+            <Typography variant="h5">Phone No: {data?.phoneNo}</Typography>
+          </div>
+          <Typography variant="h6" className="mb-2">
+            Addresses:
+          </Typography>
+          <ul className="list-disc pl-4">
+            {data?.addresses?.length &&
+              data?.addresses.map((address: any, index: number) => (
+                <li key={index}>
+                  {address.addressLine1}, {address.addressLine2}, {address.city}, {address.state}, {address.country}
+                </li>
+              ))}
+          </ul>
         </div>
-        <Typography variant="h6" className="mb-2">
-          Addresses:
-        </Typography>
-        <ul className="list-disc pl-4">
-          {data?.addresses?.length &&
-            data?.addresses.map((address: any, index: number) => (
-              <li key={index}>
-                {address.addressLine1}, {address.addressLine2}, {address.city},{" "}
-                {address.state}, {address.country}
-              </li>
-            ))}
-        </ul>
       </Paper>
     </div>
   );

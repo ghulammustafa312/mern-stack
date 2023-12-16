@@ -4,23 +4,12 @@ import React, { useState, useEffect } from "react";
 import { DataGrid, GridOverlay } from "@mui/x-data-grid";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { FixedSizeList } from "react-window";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Menu,
-  MenuItem,
-} from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  useDeleteUserMutation,
-  useGetAllUsersQuery,
-} from "../redux/api/usersApi";
+import { useDeleteUserMutation, useGetAllUsersQuery } from "../redux/api/usersApi";
 import Loader from "../components/Loader";
+import toast from "react-hot-toast";
 
 const UserTable = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -30,16 +19,8 @@ const UserTable = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const navigate = useNavigate();
-  const {
-    isLoading,
-    isError,
-    error,
-    data: usersData,
-  } = useGetAllUsersQuery({ page, limit: 10 });
-  const [
-    deleteUser,
-    { isLoading: deleteLoading, isError: isDeleteError, error: deleteError },
-  ] = useDeleteUserMutation();
+  const { isLoading, isError, error, data: usersData } = useGetAllUsersQuery({ page, limit: 10 });
+  const [deleteUser, { isLoading: deleteLoading, isError: isDeleteError, error: deleteError }] = useDeleteUserMutation();
   const loadMoreData = async () => {
     // const newUsers = await fetchData(page + 1);
     // if (newUsers.length === 0) {
@@ -48,9 +29,6 @@ const UserTable = () => {
     //   setUsers((prevUsers) => [...prevUsers, ...newUsers]);
     //   setPage(page + 1);
     // }
-  };
-  const deleteData = async (userId: string) => {
-    deleteUser(userId);
   };
 
   // useEffect(() => {
@@ -88,11 +66,7 @@ const UserTable = () => {
           <IconButton onClick={(event) => handleMenuOpen(event, params.row)}>
             <MoreVertIcon />
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
             <MenuItem onClick={handleView}>View</MenuItem>
             <MenuItem onClick={handleEdit}>Edit</MenuItem>
             <MenuItem onClick={handleDelete}>Delete</MenuItem>
@@ -135,9 +109,14 @@ const UserTable = () => {
   }));
 
   const handleDeleteConfirmation = async () => {
-    await deleteData(selectedUser?.id);
-    setDeleteModalOpen(false);
-    handleMenuClose();
+    deleteUser(selectedUser?.id)
+      .unwrap()
+      .then(() => toast.success("User deleted successfully"))
+      .catch((err) => toast.error(err?.data?.message))
+      .finally(() => {
+        setDeleteModalOpen(false);
+        handleMenuClose();
+      });
   };
 
   const handleDeleteCancel = () => {
@@ -161,12 +140,7 @@ const UserTable = () => {
 
   const Row = ({ index, style }) => (
     <div style={style}>
-      <DataGrid
-        rows={[rows[index]]}
-        columns={columns}
-        pageSizeOptions={[1]}
-        autoHeight
-      />
+      <DataGrid rows={[rows[index]]} columns={columns} pageSizeOptions={[1]} autoHeight />
     </div>
   );
 
@@ -196,9 +170,7 @@ const UserTable = () => {
       </InfiniteScroll>
       <Dialog open={deleteModalOpen} onClose={handleDeleteCancel}>
         <DialogTitle>Delete User</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this user?
-        </DialogContent>
+        <DialogContent>Are you sure you want to delete this user?</DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel} color="primary">
             Cancel
