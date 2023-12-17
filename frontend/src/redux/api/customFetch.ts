@@ -1,17 +1,8 @@
-import {
-  BaseQueryFn,
-  FetchArgs,
-  fetchBaseQuery,
-  FetchBaseQueryError,
-} from "@reduxjs/toolkit/query";
-import { Mutex } from "async-mutex";
+import { BaseQueryFn, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { logout } from "../features/user.slice";
 
 // const baseUrl = `${process.env.REACT_APP_SERVER_ENDPOINT}/`;
 const baseUrl = `http://localhost:3000/`;
-
-// Create a new mutex
-const mutex = new Mutex();
 
 const baseQuery = fetchBaseQuery({
   baseUrl,
@@ -21,29 +12,15 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-const customFetchBase: BaseQueryFn<
-  string | FetchArgs,
-  unknown,
-  FetchBaseQueryError
-> = async (args, api, extraOptions) => {
-  // wait until the mutex is available without locking it
-  // await mutex.waitForUnlock();
+const customFetchBase: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
   if (result.error?.status === 401) {
-    // if (!mutex.isLocked()) {
-    // const release = await mutex.acquire();
     try {
       api.dispatch(logout());
       window.location.href = "/";
     } catch (e) {
       console.log(e);
-    } finally {
-      // release();
     }
-    // } else {
-    //   await mutex.waitForUnlock();
-    //   result = await baseQuery(args, api, extraOptions);
-    // }
   }
 
   return result;

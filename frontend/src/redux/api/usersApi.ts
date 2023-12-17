@@ -1,6 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import customFetchBase from "./customFetch";
-import { IPostResponse } from "./types";
 
 export const usersApi = createApi({
   reducerPath: "usersApi",
@@ -79,4 +78,5 @@ export const usersApi = createApi({
   }),
 });
 
-export const { useCreateUserMutation, useDeleteUserMutation, useUpdateUserMutation, useGetAllUsersQuery, useGetUserQuery } = usersApi;
+export const { useCreateUserMutation, useDeleteUserMutation, useUpdateUserMutation, useGetAllUsersQuery, useGetUserQuery, useLazyGetAllUsersQuery } =
+  usersApi;

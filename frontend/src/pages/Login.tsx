@@ -7,8 +7,7 @@ import { useLoginUserMutation } from "../redux/api/authApi";
 import toast from "react-hot-toast";
 
 const LoginPage = () => {
-  const [loginUser, { isLoading, isError, data, error, isSuccess }] =
-    useLoginUserMutation();
+  const [loginUser, { isLoading, isError, data, error, isSuccess }] = useLoginUserMutation();
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -16,16 +15,14 @@ const LoginPage = () => {
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email address").required("Required"),
-      password: Yup.string()
-        .min(8, "Password must be at least 8 characters")
-        .required("Required"),
+      password: Yup.string().min(8, "Password must be at least 8 characters").required("Required"),
     }),
     onSubmit: async (values) => {
       loginUser(values)
         .unwrap()
         .then(() => toast.success("Login Successful"))
         .catch((err) => {
-          toast.error(error?.data?.message);
+          toast.error(err?.data?.message);
         });
     },
   });

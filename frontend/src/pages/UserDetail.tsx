@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Typography, Paper, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useGetUserQuery } from "../redux/api/usersApi";
 
 const UserDetail = () => {
   const { userId } = useParams();
-  const [dataLoaded, setDataLoaded] = useState(false);
   const { isLoading, isError, error, data } = useGetUserQuery(userId);
 
-  if (!data) {
+  if (!isLoading && !data) {
     return <Typography variant="h6">User not found</Typography>;
   }
 

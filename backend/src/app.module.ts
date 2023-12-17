@@ -15,7 +15,7 @@ import { JwtModule } from '@nestjs/jwt';
     MongooseModule.forRoot('mongodb://localhost:27017/mern-stack'),
     PassportModule,
     JwtModule.register({
-      secret: 'secretKey', // replace with your secret key
+      secret: 'secretKey',
       signOptions: { expiresIn: '1h' }, // adjust expiration as needed
     }),
     UsersModule,

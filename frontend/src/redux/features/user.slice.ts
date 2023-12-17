@@ -24,10 +24,7 @@ export const userSlice = createSlice({
       state.user = null;
       state.access_token = "";
     },
-    setUser: (
-      state,
-      action: PayloadAction<{ user: IUser; access_token: string }>
-    ) => {
+    setUser: (state, action: PayloadAction<{ user: IUser; access_token: string }>) => {
       state.user = action.payload.user;
       state.access_token = action.payload.access_token;
       localStorage.setItem("user", JSON.stringify(action.payload.user));
